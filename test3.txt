@@ -1,28 +1,6 @@
-            # print("")
-            # if choice == 1:
-            #     self.create_account()
-            # elif choice == 2:
-            #     self.login()
-            # elif choice == 3:
-            #     self.total_accounts()
-            # # elif choice == 4:
-            #     self.total_balance()
-            # elif choice == 5:
-            #     self.deactivate_account()
-            # elif choice == 6:
-            #     self.quit()
-            # elif choice == 7:
-            #     self.administrator()
-            # else:
-            #     print("Wrong choice...")
-
-
-
 ------------------------------------------------------------------------------------------------------------
 1.Bank Intrest
 2.Bank charges
 3.Account number 
 4.Minimum Balance limits
-5.Money_transfer done 
-6.shares
-7.Loan 
+5.Loan 

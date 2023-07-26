@@ -7,7 +7,6 @@ import click
 import getpass
 import time
 import pygame 
-from AudioCreator import sound
 
 class Atm:
     # function for sending OTP to user
