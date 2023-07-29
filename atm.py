@@ -106,7 +106,7 @@ class Atm:
             print("ID not found. Verify your ID")
 
     def show_menu(self, balance, atm_id, name,email):
-        self.clrscr()
+        # self.clrscr()
         sound_effect = pygame.mixer.Sound("Logded_s.mp3")
         sound_effect.play()
         print("*"*20," Welcome to ATM System ","*"*20)
@@ -167,7 +167,7 @@ class Atm:
         print("Your balance is:", str(result,))
     
     def Transfer_money(self,atm_id,balance,email):
-        receiver_id = int(input("Enetr ID of person whome you want to send monney : "))
+        receiver_id = int(input("Enetr ID of person whome you want to send money : "))
         account = self.db.fetch_query(f"SELECT * FROM atmdatabase WHERE ID = {receiver_id}")
         if account:
             name = account[1]
@@ -328,7 +328,6 @@ class Atm:
                         break
                     else:
                         print("Please enter correct option ")
-                    break
                 break
             else:
                 print("Entered Pin is invalid \nPlease Try again ")
