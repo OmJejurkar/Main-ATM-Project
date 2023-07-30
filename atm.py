@@ -449,19 +449,26 @@ class Atm:
                     else:
                         print("No Option Available ")                
                 elif choice == 2:
-                    self.show_admin_main_menu()
-                    choice = int(input("Welcome, Administrator! Indicate your desired task by entering the corresponding number:"))
-                    if choice == 1:
-                        self.total_accounts()
-                    elif choice == 2:
-                        self.total_balance()
-                    elif choice == 3:
-                        self.clrscr()
-                        self.administrator()  
-                    elif choice == 4:
-                        break 
-                    else:
-                        print("No Option Available") 
+                    while True:
+                        a_pin = "906251"
+                        e_pin = getpass.getpass("Enter admin pin :")
+                        if a_pin == e_pin:
+                            self.clrscr()
+                            self.show_admin_main_menu()
+                            choice = int(input("Welcome, Administrator! Indicate your desired task by entering the corresponding number:"))
+                            if choice == 1:
+                                self.total_accounts()
+                            elif choice == 2:
+                                self.total_balance()
+                            elif choice == 3:
+                                self.clrscr()
+                                self.administrator()  
+                            elif choice == 4:
+                                break 
+                            else:
+                                print("No Option Available") 
+                        else:
+                            print("Incorrect Pin Entered! Please Enter correct pin to procced")
                 else:
                     print("Wrong Option selected")
 
