@@ -229,13 +229,13 @@ class Atm:
     def Updation(self):
         self.clrscr()
         print("-"*20,"Updating your Profile","-"*20)
-        atm_id = int(input("Enter your ID: "))
-        account = self.db.fetch_query(f"SELECT * FROM atmdatabase WHERE ID = {atm_id}")
+        self.user_id = int(input("Enter your ID: "))
+        account = self.db.fetch_query(f"SELECT * FROM atmdatabase WHERE ID = {self.user_id}")
         if account:
             name = account[1]
             pin = account[3]
             email = account[4]
-            print(name, "Updating Profile\nYour ID is:", atm_id)
+            print(name, "Updating Profile\nYour ID is:", self.user_id)
             while True:
                 entered_pin = int(input("Enter your pin: "))
                 hashed_pin = self.hash_pin(entered_pin)
@@ -245,19 +245,19 @@ class Atm:
                         choice =int(input("Enter what you want to update in your profile : "))
                         if choice == 1:
                             update_name = input("Enter your name you want to change : ")
-                            self.db.execute_query("Update atmdatabase set Name = %s Where ID = %s",(update_name,atm_id))
+                            self.db.execute_query("Update atmdatabase set Name = %s Where ID = %s",(update_name,self.user_id))
                             print(f"Name Updated to {update_name} ")
                             print("Name Updation successful")
                             self.send_task_notification(email,"Update Profile")
                         elif choice == 2:
-                            update_pin = input("Enter your name youwant to change : ")
+                            update_pin = int(input("Enter your pin you want to change : "))
                             hashed_pin = self.hash_pin(update_pin)
-                            self.db.execute_query("Update atmdatabase set Pin = %s Where ID = %s",(hashed_pin,atm_id))
+                            self.db.execute_query("Update atmdatabase set Pin = %s Where ID = %s",(hashed_pin,self.user_id))
                             print("Pin Updated to successfully")
                             self.send_task_notification(email,"Update Profile")
                         elif choice == 3:
                             update_email = input("Enter your name youwant to change : ")
-                            self.db.execute_query("Update atmdatabase set Email = %s Where ID = %s",(update_email,atm_id))
+                            self.db.execute_query("Update atmdatabase set Email = %s Where ID = %s",(update_email,self.user_id))
                             print(f"Email Updated to {update_email} ")
                             print("Email  updation successful")
                             self.send_task_notification(email,"Update Profile")
@@ -407,7 +407,7 @@ class Atm:
         print("+-------user Menu-----------+")
         print("|    1.Create Account       |")
         print("|    2.Login                |")
-        print("|    3.Forgot Password?     |")
+        print("|    3.Upadation            |")
         print("|    4.Reset Pin            |")
         print("+---------------------------+")
     def show_admin_main_menu(self):
@@ -425,52 +425,51 @@ class Atm:
     def main(self):
         while True:
             self.clrscr()
-            while True:
-                sound_effect = pygame.mixer.Sound("welcome_om.mp3")
-                sound_effect.play()
-                print()
-                print("Please choose your role \n1.User \U0001F464\n2.Admin \U0001F64B")
-                choice = int(input("How can we assist you today? Please choose an option from the menu:"))
-                if choice == 1 :
-                    self.show_user_main_menu()
-                    choice = int(input("Enter what you want to perform : "))
-                    if choice == 1:
-                        self.clrscr()
-                        self.create_account()
-                    elif choice == 2:
-                        self.clrscr()
-                        self.login()
-                    elif choice == 3 :
-                        self.Updation()
-                    elif choice == 4 :
-                        self.Reset_pin()
-                    elif choice == 5:
-                        break
-                    else:
-                        print("No Option Available ")                
+            sound_effect = pygame.mixer.Sound("welcome_om.mp3")
+            sound_effect.play()
+            print()
+            print("Please choose your role \n1.User \U0001F464\n2.Admin \U0001F64B")
+            choice = int(input("How can we assist you today? Please choose an option from the menu:"))
+            if choice == 1 :
+                self.show_user_main_menu()
+                choice = int(input("Enter what you want to perform : "))
+                if choice == 1:
+                    self.clrscr()
+                    self.create_account()
                 elif choice == 2:
-                    while True:
-                        a_pin = "906251"
-                        e_pin = getpass.getpass("Enter admin pin :")
-                        if a_pin == e_pin:
-                            self.clrscr()
-                            self.show_admin_main_menu()
-                            choice = int(input("Welcome, Administrator! Indicate your desired task by entering the corresponding number:"))
-                            if choice == 1:
-                                self.total_accounts()
-                            elif choice == 2:
-                                self.total_balance()
-                            elif choice == 3:
-                                self.clrscr()
-                                self.administrator()  
-                            elif choice == 4:
-                                break 
-                            else:
-                                print("No Option Available") 
-                        else:
-                            print("Incorrect Pin Entered! Please Enter correct pin to procced")
+                    self.clrscr()
+                    self.login()
+                elif choice == 3 :
+                    self.Updation()
+                elif choice == 4 :
+                    self.Reset_pin()
+                elif choice == 5:
+                    break
                 else:
-                    print("Wrong Option selected")
+                    print("No Option Available ")                
+            elif choice == 2:
+                while True:
+                    a_pin = "906251"
+                    e_pin = getpass.getpass("Enter admin pin :")
+                    if a_pin == e_pin:
+                        self.clrscr()
+                        self.show_admin_main_menu()
+                        choice = int(input("Welcome, Administrator! Indicate your desired task by entering the corresponding number:"))
+                        if choice == 1:
+                            self.total_accounts()
+                        elif choice == 2:
+                            self.total_balance()
+                        elif choice == 3:
+                            self.clrscr()
+                            self.administrator()  
+                        elif choice == 4:
+                            break 
+                        else:
+                            print("No Option Available") 
+                    else:
+                        print("Incorrect Pin Entered! Please Enter correct pin to procced")
+            else:
+                print("Wrong Option selected")
 
 obj = Atm()
 obj.main()
