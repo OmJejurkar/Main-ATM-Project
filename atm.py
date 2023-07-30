@@ -191,7 +191,7 @@ class Atm:
         else:
             print("Entered Id Is not present")
             time.sleep(5)
-        self.clrscr()
+        # self.clrscr()
 
     def deactivate_account(self,atm_id,email):
         self.clrscr()
@@ -402,17 +402,21 @@ class Atm:
             server.sendmail(sender_email, receiver_email, message)
 
     # @staticmethod
-    def show_main_menu(self):  
+    def show_user_main_menu(self):  
         print()
-        print("************************* Main Menu *************************")
-        print()
-        print("+------","User Menu","--------","+","-------","Administrator Menu","-------+")
-        print("|    1.Create Account      |    1.Total Accounts               |")
-        print("|    2.Login Account       |    2.Total Balance                |")
-        print("|    3.Updation            |    3.Administrator Mode           |")
-        print("|    4.Reset Pin           |    4.Back                         |")
-        print("+-------------------------","+","----------------------------------+")
-
+        print("+-------user Menu-----------+")
+        print("|    1.Create Account       |")
+        print("|    2.Login                |")
+        print("|    3.Forgot Password?     |")
+        print("|    4.Reset Pin            |")
+        print("+---------------------------+")
+    def show_admin_main_menu(self):
+        print("+--------Admin Menu---------+")
+        print("|    1.Total Accounts       |")
+        print("|    2.Total Balance        |")
+        print("|    3.Administrator Mode   |")
+        print("|    4.Back                 |")
+        print("+---------------------------+")
     @staticmethod
     def quit():
         print("Exiting...")
@@ -424,11 +428,11 @@ class Atm:
             while True:
                 sound_effect = pygame.mixer.Sound("welcome_om.mp3")
                 sound_effect.play()
-                self.show_main_menu()
                 print()
                 print("Please choose your role \n1.User \U0001F464\n2.Admin \U0001F64B")
-                choice = int(input("Enter the corresponding number to continue : "))
+                choice = int(input("How can we assist you today? Please choose an option from the menu:"))
                 if choice == 1 :
+                    self.show_user_main_menu()
                     choice = int(input("Enter what you want to perform : "))
                     if choice == 1:
                         self.clrscr()
@@ -445,7 +449,8 @@ class Atm:
                     else:
                         print("No Option Available ")                
                 elif choice == 2:
-                    choice = int(input("Enter task you want to perform :"))
+                    self.show_admin_main_menu()
+                    choice = int(input("Welcome, Administrator! Indicate your desired task by entering the corresponding number:"))
                     if choice == 1:
                         self.total_accounts()
                     elif choice == 2:
