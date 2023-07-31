@@ -19,7 +19,7 @@ class Atm:
         password = "mxvzejthrauukjlr"
         self.otp = ''.join([str(random.randint(0, 9)) for i in range(4)])
         subject = "Your OTP"
-        text = "This is your One Time Password"
+        text = " This is your One Time Password"
         message = f"Subject: {subject}\n\n{self.otp}{text}"
         context = ssl.create_default_context()
         with smtplib.SMTP(smtp_server, port) as server:
@@ -30,7 +30,6 @@ class Atm:
         print("OTP sent Successfully on your registered email")
         self.db.execute_query("update atmdatabase set OTP = %s where Email = %s", (self.otp, email))
 
-    #constructor which creats object of data base with salt value for encoding
     def __init__(self):
         self.db = Database()
         self.salt = "your_salt_value"
@@ -86,7 +85,7 @@ class Atm:
             balance = account[2]
             pin = account[3]
             email = account[4]
-            print(name, "Logged in\nYour ID is:", atm_id)
+            print(name, "Logged in")
             while True:
                 entered_pin = int(input("Enter your pin: "))
                 hashed_pin = self.hash_pin(entered_pin)
@@ -109,10 +108,8 @@ class Atm:
         # self.clrscr()
         sound_effect = pygame.mixer.Sound("Logded_s.mp3")
         sound_effect.play()
-        print("*"*20," Welcome to ATM System ","*"*20)
-        print()
-        print(f"Account Holder {name}  is Active")
-        print()
+        print("*"*20," Welcome to ATM System ","*"*20);print()
+        print(f"Account Holder {name}  is Active");print()
         while True:
             print("+------------------------ Menu -------------------------+")
             print("| 1. Withdrawal             |   2. Deposit              |")
@@ -163,15 +160,17 @@ class Atm:
         self.send_task_notification(email,"Deposit")
 
     def check_balance(self,atm_id):
-        result = self.db.fetch_query("select Balance from atmdatabase where ID = %s ", (atm_id,))
-        print("Your balance is:", str(result,))
+        result = self.db.fetch_query(f"SELECT Balance from atmdatabase where ID = {atm_id}")
+        print(f"Your balance is: {result}")
     
     def Transfer_money(self,atm_id,balance,email):
-        receiver_id = int(input("Enetr ID of person whome you want to send money : "))
+        receiver_id = int(input("Enter ID of person whome you want to send money : "))
         account = self.db.fetch_query(f"SELECT * FROM atmdatabase WHERE ID = {receiver_id}")
         if account:
             name = account[1]
-            print(f"Money is transfered to {name}\nwhoes ID is : {id}")
+            id = account[0]
+            receiver_bal = account[2]
+            print(f"You are transsferring money to {name}\nwhoes ID is : {id}")
             self.t_amount = int(input("Enter amount: "))
             self.bal = balance
             if self.t_amount <= self.bal:
@@ -179,8 +178,8 @@ class Atm:
                 self.bal = self.bal-self.t_amount
                 self.db.execute_query("update atmdatabase set Balance = %s where ID = %s",(self.bal,atm_id))
                 #receiver
-                balance += self.t_amount
-                self.db.execute_query("update atmdatabase set Balance = %s where ID = %s",(balance,receiver_id))
+                receiver_bal += self.t_amount
+                self.db.execute_query("update atmdatabase set Balance = %s where ID = %s",(receiver_bal,receiver_id))
                 self.transfer_time = time.strftime("%Y-%m-%d %H:%M:%S")
                 #Transaction Time
                 self.db.execute_query("Insert into transaction (UserID,Time,Transaction_type,Transaction_amt) values(%s,%s,%s,%s)",(atm_id,self.transfer_time,"Transfer",self.t_amount))
@@ -221,7 +220,7 @@ class Atm:
             print(f"Your time of transaction was : {self.time}")
             print(f"Your transaction type was : {self.t_type}")
             print(f"Your Transaction Amount was : {self.t_amount}")
-            print("_"*20)
+            print("_"*60)
 
     def Logout(self, name):
         print(name, "Logged out")
@@ -392,7 +391,7 @@ class Atm:
             text = "Successfullly updated your profile"
         elif task == "Deactivate":
             text = "Your account deactivated successfully \n Thank you using our system"
-        
+
         message = f"Subject: {subject}\n\n{text}"
         context = ssl.create_default_context()
         with smtplib.SMTP(smtp_server, port) as server:
