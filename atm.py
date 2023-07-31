@@ -403,7 +403,7 @@ class Atm:
     # @staticmethod
     def show_user_main_menu(self):  
         print()
-        print("+-------user Menu-----------+")
+        print("+-------User Menu-----------+")
         print("|    1.Create Account       |")
         print("|    2.Login                |")
         print("|    3.Upadation            |")
