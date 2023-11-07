@@ -7,6 +7,9 @@ import click
 import getpass
 import time
 import pygame 
+import pyttsx3 
+import speech_recognition as sr 
+import os
 
 class Atm:
     # function for sending OTP to user
@@ -28,12 +31,19 @@ class Atm:
             server.login(sender_email, password)
             server.sendmail(sender_email, receiver_email, message)
         print("OTP sent Successfully on your registered email")
-        self.db.execute_query("update atmdatabase set OTP = %s where Email = %s", (self.otp, email))
+        self.db.execute_query("update user set OTP = %s where Email = %s", (self.otp, email))
 
     def __init__(self):
         self.db = Database()
         self.salt = "your_salt_value"
         pygame.init()
+        engine = pyttsx3.init('sapi5')
+        voices = engine.getProperty('voices')
+        engine.setProperty('voice', voices[0].id)
+    
+    def speak(audio):
+        engine.say(audio)
+        engine.runAndWait()
 
     # Function for clearing screen  
     def clrscr(self):
@@ -41,10 +51,11 @@ class Atm:
 
     # Function for creating account 
     def create_account(self):
-        sound_effect = pygame.mixer.Sound("Registration_page.mp3")
-        sound_effect.play()
+        # sound_effect = pygame.mixer.Sound("Registration_page.mp3")
+        # sound_effect.play()
+
         self.clrscr()
-        max_id = self.db.fetch_query("SELECT MAX(ID) FROM atmdatabase")[0]
+        max_id = self.db.fetch_query("SELECT MAX(ID) FROM user")[0]
         atm_id = max_id + 1
         print("Wel-come to ATM system")
         print("Creating your account....")
@@ -64,7 +75,7 @@ class Atm:
             else:
                 print("Pins do not match")
         print("Your account created successfully with ID:", atm_id)
-        self.db.execute_query("INSERT INTO atmdatabase (ID, Name, balance, Pin,Email,Question,Answer) VALUES (%s, %s, %s, %s, %s,%s,%s)", (atm_id, name, balance, hashed_pin, email,self.question,self.answer))
+        self.db.execute_query("INSERT INTO user (Name, Balance, Pin,Email,SecQuestion,SecAnswer,OTP) VALUES (%s, %s, %s, %s, %s,%s,%s)", (atm_id, name, balance, hashed_pin, email,self.question,self.answer,))
 
     # Function for hashing the pin
     def hash_pin(self, pin):
@@ -79,7 +90,7 @@ class Atm:
         sound_effect = pygame.mixer.Sound("Login_page.mp3")
         sound_effect.play()        
         atm_id = int(input("Enter your ID: "))
-        account = self.db.fetch_query("SELECT * FROM atmdatabase WHERE ID = %s", (atm_id,))
+        account = self.db.fetch_query("SELECT * FROM user WHERE ID = %s", (atm_id,))
         if account:
             name = account[1]
             balance = account[2]
@@ -143,7 +154,7 @@ class Atm:
         if self.w_amount <= self.bal:
             self.bal = self.bal-self.w_amount
             withdraw_time = time.strftime("%Y-%m-%d %H:%M:%S")
-            self.db.execute_query("UPDATE atmdatabase SET Balance = %s WHERE ID = %s", (self.bal, atm_id))
+            self.db.execute_query("UPDATE user SET Balance = %s WHERE ID = %s", (self.bal, atm_id))
             self.db.execute_query("Insert into transaction (UserID,Time,Transaction_type,Transaction_amt) values(%s,%s,%s,%s)",(atm_id,withdraw_time,"withdraw",self.w_amount))
             print("Withdrawal of", self.w_amount, "successfully done")
             self.send_task_notification(email,"Withdrawal")
@@ -154,18 +165,18 @@ class Atm:
         self.d_amount = int(input("Enter amount you want to deposit: "))
         balance += self.d_amount
         deposit_time = time.strftime("%Y-%m-%d %H:%M:%S")
-        self.db.execute_query("UPDATE atmdatabase SET Balance = %s WHERE ID = %s", (balance, atm_id))
+        self.db.execute_query("UPDATE user SET Balance = %s WHERE ID = %s", (balance, atm_id))
         self.db.execute_query("Insert into transaction (UserID,Time,Transaction_type,Transaction_amt) values(%s,%s,%s,%s)",(atm_id,deposit_time,"Deposit",self.d_amount))
         print("Amount of", self.d_amount, "successfully deposited")
         self.send_task_notification(email,"Deposit")
 
     def check_balance(self,atm_id):
-        result = self.db.fetch_query(f"SELECT Balance from atmdatabase where ID = {atm_id}")
+        result = self.db.fetch_query(f"SELECT Balance from user where ID = {atm_id}")
         print(f"Your balance is: {result}")
     
     def Transfer_money(self,atm_id,balance,email):
         receiver_id = int(input("Enter ID of person whome you want to send money : "))
-        account = self.db.fetch_query(f"SELECT * FROM atmdatabase WHERE ID = {receiver_id}")
+        account = self.db.fetch_query(f"SELECT * FROM user WHERE ID = {receiver_id}")
         if account:
             name = account[1]
             id = account[0]
@@ -176,10 +187,10 @@ class Atm:
             if self.t_amount <= self.bal:
                 #sender
                 self.bal = self.bal-self.t_amount
-                self.db.execute_query("update atmdatabase set Balance = %s where ID = %s",(self.bal,atm_id))
+                self.db.execute_query("update user set Balance = %s where ID = %s",(self.bal,atm_id))
                 #receiver
                 receiver_bal += self.t_amount
-                self.db.execute_query("update atmdatabase set Balance = %s where ID = %s",(receiver_bal,receiver_id))
+                self.db.execute_query("update user set Balance = %s where ID = %s",(receiver_bal,receiver_id))
                 self.transfer_time = time.strftime("%Y-%m-%d %H:%M:%S")
                 #Transaction Time
                 self.db.execute_query("Insert into transaction (UserID,Time,Transaction_type,Transaction_amt) values(%s,%s,%s,%s)",(atm_id,self.transfer_time,"Transfer",self.t_amount))
@@ -194,7 +205,7 @@ class Atm:
 
     def deactivate_account(self,atm_id,email):
         self.clrscr()
-        account = self.db.fetch_query("SELECT * FROM atmdatabase WHERE ID = %s", (atm_id,))
+        account = self.db.fetch_query("SELECT * FROM user WHERE ID = %s", (atm_id,))
         # deactivation_time = time.strftime("%Y-%m-%d %H:%M:%S")
         if account:
             pin = account[3]
@@ -202,7 +213,7 @@ class Atm:
                 entered_pin = int(input("Enter your pin: "))
                 hashed_pin = self.hash_pin(entered_pin)
                 if hashed_pin == pin:
-                    self.db.execute_query("DELETE FROM atmdatabase WHERE ID = %s", (atm_id,))
+                    self.db.execute_query("DELETE FROM user WHERE ID = %s", (atm_id,))
                     print("Account Deactivated successfully")
                     self.send_task_notification(email,"Deactivate")
                     break
@@ -229,7 +240,7 @@ class Atm:
         self.clrscr()
         print("-"*20,"Updating your Profile","-"*20)
         self.user_id = int(input("Enter your ID: "))
-        account = self.db.fetch_query(f"SELECT * FROM atmdatabase WHERE ID = {self.user_id}")
+        account = self.db.fetch_query(f"SELECT * FROM user WHERE ID = {self.user_id}")
         if account:
             name = account[1]
             pin = account[3]
@@ -244,19 +255,19 @@ class Atm:
                         choice =int(input("Enter what you want to update in your profile : "))
                         if choice == 1:
                             update_name = input("Enter your name you want to change : ")
-                            self.db.execute_query("Update atmdatabase set Name = %s Where ID = %s",(update_name,self.user_id))
+                            self.db.execute_query("Update user set Name = %s Where ID = %s",(update_name,self.user_id))
                             print(f"Name Updated to {update_name} ")
                             print("Name Updation successful")
                             self.send_task_notification(email,"Update Profile")
                         elif choice == 2:
                             update_pin = int(input("Enter your pin you want to change : "))
                             hashed_pin = self.hash_pin(update_pin)
-                            self.db.execute_query("Update atmdatabase set Pin = %s Where ID = %s",(hashed_pin,self.user_id))
+                            self.db.execute_query("Update user set Pin = %s Where ID = %s",(hashed_pin,self.user_id))
                             print("Pin Updated to successfully")
                             self.send_task_notification(email,"Update Profile")
                         elif choice == 3:
                             update_email = input("Enter your name youwant to change : ")
-                            self.db.execute_query("Update atmdatabase set Email = %s Where ID = %s",(update_email,self.user_id))
+                            self.db.execute_query("Update user set Email = %s Where ID = %s",(update_email,self.user_id))
                             print(f"Email Updated to {update_email} ")
                             print("Email  updation successful")
                             self.send_task_notification(email,"Update Profile")
@@ -270,7 +281,7 @@ class Atm:
 
     def Reset_pin(self):
         self.r_id = int(input("Enter your ID to reset pin"))
-        self.account = self.db.fetch_query(f"select * from atmdatabase where ID = {self.r_id}")
+        self.account = self.db.fetch_query(f"select * from user where ID = {self.r_id}")
         if self.account:
             name = self.account[1]
             self.qus = self.account[6]
@@ -295,12 +306,12 @@ class Atm:
 
     def total_accounts(self):
         self.clrscr()
-        result = self.db.fetch_query("SELECT COUNT(*) FROM atmdatabase")
+        result = self.db.fetch_query("SELECT COUNT(*) FROM user")
         print("Total ID present in the system:", result[0])
 
     def total_balance(self):
         self.clrscr()
-        result = self.db.fetch_query("SELECT SUM(balance) FROM atmdatabase")
+        result = self.db.fetch_query("SELECT SUM(balance) FROM user")
         print("Total balance of the system:", result[0])
 
     def administrator(self):
@@ -333,7 +344,7 @@ class Atm:
 
     def see_database(self):
         self.clrscr()
-        account = self.db.fetch_all_query("SELECT * FROM atmdatabase")
+        account = self.db.fetch_all_query("SELECT * FROM user")
         for i in account:
             id = i[0]
             name = i[1]
