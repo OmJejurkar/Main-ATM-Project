@@ -12,6 +12,15 @@ import speech_recognition as sr
 import os
 
 class Atm:
+
+    def __init__(self):
+        self.db = Database()
+        self.salt = "your_salt_value"
+        pygame.init()
+        engine = pyttsx3.init('sapi5')
+        voices = engine.getProperty('voices')
+        engine.setProperty('voice', voices[0].id)
+
     # function for sending OTP to user
     def send_otp_email(self,email):
         port = 587
@@ -19,7 +28,7 @@ class Atm:
         sender_email = "jejurkarom24@gmail.com"
         receiver_email = email
         # receiver_email = "vikaswagh8007@gmail.com" vikas sir email .
-        password = "mxvzejthrauukjlr"
+        password = "jwja vacj yatc ioaq"
         self.otp = ''.join([str(random.randint(0, 9)) for i in range(4)])
         subject = "Your OTP"
         text = " This is your One Time Password"
@@ -33,26 +42,14 @@ class Atm:
         print("OTP sent Successfully on your registered email")
         self.db.execute_query("update user set OTP = %s where Email = %s", (self.otp, email))
 
-    def __init__(self):
-        self.db = Database()
-        self.salt = "your_salt_value"
-        pygame.init()
-        engine = pyttsx3.init('sapi5')
-        voices = engine.getProperty('voices')
-        engine.setProperty('voice', voices[0].id)
-    
-    def speak(audio):
-        engine.say(audio)
-        engine.runAndWait()
-
     # Function for clearing screen  
     def clrscr(self):
         click.clear()
 
     # Function for creating account 
     def create_account(self):
-        # sound_effect = pygame.mixer.Sound("Registration_page.mp3")
-        # sound_effect.play()
+        sound_effect = pygame.mixer.Sound("Registration_page.mp3")
+        sound_effect.play()
 
         self.clrscr()
         max_id = self.db.fetch_query("SELECT MAX(ID) FROM user")[0]
@@ -75,7 +72,7 @@ class Atm:
             else:
                 print("Pins do not match")
         print("Your account created successfully with ID:", atm_id)
-        self.db.execute_query("INSERT INTO user (Name, Balance, Pin,Email,SecQuestion,SecAnswer,OTP) VALUES (%s, %s, %s, %s, %s,%s,%s)", (atm_id, name, balance, hashed_pin, email,self.question,self.answer,))
+        self.db.execute_query("INSERT INTO user (ID, Name, Balance, Pin, Email, SecQuestion, SecAnswer) VALUES (%s, %s, %s, %s, %s, %s, %s)", (atm_id, name, balance, hashed_pin, email, self.question, self.answer))
 
     # Function for hashing the pin
     def hash_pin(self, pin):
@@ -140,6 +137,7 @@ class Atm:
                 self.Transfer_money(atm_id,balance,email)
             elif choice == 5:
                 self.deactivate_account(atm_id,email)
+                break
             elif choice == 6:
                 self.Transaction_history(atm_id)
             elif choice == 7:
@@ -224,9 +222,9 @@ class Atm:
         self.history = self.db.fetch_all_query(f"Select * from transaction where UserID = {atm_id}")
         for i in self.history:
             self.tid = i[0]
-            self.time = i[2]
-            self.t_type = i[3]
-            self.t_amount = i[4] 
+            self.time = i[1]
+            self.t_type = i[2]
+            self.t_amount = i[3] 
             print(f"Your transaction Id is : {self.tid}")
             print(f"Your time of transaction was : {self.time}")
             print(f"Your transaction type was : {self.t_type}")
@@ -390,7 +388,7 @@ class Atm:
         smtp_server = "smtp.gmail.com"
         sender_email = "jejurkarom24@gmail.com"
         receiver_email = email
-        password = "mxvzejthrauukjlr"
+        password = "jwja vacj yatc ioaq"
         subject = "Task Notification"
         if task == "Withdrawal":
             text = f"Successfullly {self.w_amount} rupees money withrawed from your account"

@@ -5,7 +5,7 @@ class Database:
             host="localhost",
             user="root",
             password="Omi@2005",
-            database="atmdatabase"
+            database="pythonatmproject"
         )
 
     def execute_query(self, query, values=None):
