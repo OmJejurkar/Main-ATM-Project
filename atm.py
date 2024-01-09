@@ -170,7 +170,8 @@ class Atm:
 
     def check_balance(self,atm_id):
         result = self.db.fetch_query(f"SELECT Balance from user where ID = {atm_id}")
-        print(f"Your balance is: {result}")
+        new_result = list(result)
+        print(f"Your balance is: {new_result}")
     
     def Transfer_money(self,atm_id,balance,email):
         receiver_id = int(input("Enter ID of person whome you want to send money : "))
