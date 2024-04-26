@@ -304,12 +304,12 @@ class Atm:
                     print(f"{i} chance remain")
 
     def total_accounts(self):
-        self.clrscr()
+        # self.clrscr()
         result = self.db.fetch_query("SELECT COUNT(*) FROM user")
         print("Total ID present in the system:", result[0])
 
     def total_balance(self):
-        self.clrscr()
+        # self.clrscr()
         result = self.db.fetch_query("SELECT SUM(balance) FROM user")
         print("Total balance of the system:", result[0])
 
@@ -457,11 +457,11 @@ class Atm:
                 else:
                     print("No Option Available ")                
             elif choice == 2:
+                a_pin = "906251"
+                e_pin = getpass.getpass("Enter admin pin :")
                 while True:
-                    a_pin = "906251"
-                    e_pin = getpass.getpass("Enter admin pin :")
                     if a_pin == e_pin:
-                        self.clrscr()
+                        # self.clrscr()
                         self.show_admin_main_menu()
                         choice = int(input("Welcome, Administrator! Indicate your desired task by entering the corresponding number:"))
                         if choice == 1:

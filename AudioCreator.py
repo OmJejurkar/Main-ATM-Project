@@ -1,6 +1,6 @@
 from gtts import gTTS
 
 language = "hi" 
-text = "Ganesh Jorwekaer"   
+text = "Welcome to SecureVault System"   
 speech = gTTS(text = text,slow = False,tld = "com.au") 
-speech.save("welcome_vaishnavi.mp3")
+speech.save("welcome_om.mp3")
