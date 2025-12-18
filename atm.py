@@ -25,10 +25,10 @@ class Atm:
     def send_otp_email(self,email):
         port = 587
         smtp_server = "smtp.gmail.com"
-        sender_email = "jejurkarom24@gmail.com"
+        sender_email = ""
         receiver_email = email
         # receiver_email = "vikaswagh8007@gmail.com" vikas sir email .
-        password = "jwja vacj yatc ioaq"
+        password = ""
         self.otp = ''.join([str(random.randint(0, 9)) for i in range(4)])
         subject = "Your OTP"
         text = " This is your One Time Password"
